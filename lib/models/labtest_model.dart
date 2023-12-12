@@ -3,9 +3,8 @@ class LabTestModel {
   final int numberOfTests;
   final double price;
   final double discountPrice;
-  final String description; // Additional information about the test
-  final bool reportIn24Hours; // Boolean indicating if the report is available in 24 hours
-
+  final String description;
+  final bool reportIn24Hours;
   LabTestModel({
     required this.testName,
     required this.numberOfTests,

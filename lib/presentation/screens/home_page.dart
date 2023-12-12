@@ -1,10 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get_utils/get_utils.dart';
+import 'package:get/get.dart';
 import '../../models/labtest_model.dart';
-import 'package:flutter/material.dart';
+import '../../models/package_model.dart';
+import 'cart_page.dart';
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: 'Health Checkup App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: HomePage(),
+    );
+  }
+}
+
+class CartController extends GetxController {
+  RxList<LabTestModel> cartItems = <LabTestModel>[].obs;
+
+  void addToCart(LabTestModel test) {
+    cartItems.add(test);
+  }
+
+  void removeFromCart(LabTestModel test) {
+    cartItems.remove(test);
+  }
+}
 
 class HomePage extends StatelessWidget {
+  final cartController = Get.put(CartController());
+
+  final List<PackageModel> package = [
+    PackageModel(
+      packageName: 'Package 1',
+      packageDescription: 'Includes 92 tests\n-Blood Glucose Fasting\n-Liver Function Test',
+      packagePrice: 299.99,
+      packageImage: 'assets/images/package1.png',
+    ),
+    PackageModel(
+      packageName: 'Package 2',
+      packageDescription: 'Description for Package 2',
+      packagePrice: 199.99,
+      packageImage: 'assets/images/package2.png',
+    ),
+
+  ];
+
   final List<LabTestModel> popularTests = [
     LabTestModel(
       testName: 'Thyroid Profile',
@@ -39,43 +83,93 @@ class HomePage extends StatelessWidget {
       reportIn24Hours: true,
     ),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Text(
-            'Health Checkup App',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Health Checkup App',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
-          centerTitle: true,
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () {
+                Get.to(CartPage());
+              },
               child: SvgPicture.asset(
                 'assets/images/cart_icon.svg',
                 height: 24,
                 width: 24,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      body: GridView.count(
-        crossAxisCount: 2,
-        padding: EdgeInsets.all(8.0),
-        childAspectRatio: 0.8,
-        children: popularTests.map((test) {
-          return _buildTestCard(test);
-        }).toList(),
+      body: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Popular Lab tests',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+
+                  },
+                  child: Text(
+                    'View more',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GridView.count(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            padding: EdgeInsets.all(8.0),
+            childAspectRatio: 0.8,
+            children: popularTests.map((test) {
+              return _buildTestCard(test);
+            }).toList(),
+          ),
+          SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Popular Packages',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ),
+          _buildPackageCard(package),
+        ],
       ),
     );
   }
@@ -122,7 +216,7 @@ class HomePage extends StatelessWidget {
                     ),
                     SizedBox(width: 8),
                     SvgPicture.asset(
-                      'assets/images/safe_image.svg',
+                      'assets/images/shield_icon.svg',
                       height: 27,
                       width: 24,
                     ),
@@ -159,7 +253,7 @@ class HomePage extends StatelessWidget {
                 SizedBox(height: 4),
                 ElevatedButton(
                   onPressed: () {
-
+                    cartController.addToCart(test);
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 30),
@@ -195,6 +289,121 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPackageCard(List<PackageModel> packages) {
+    return Column(
+      children: packages.map((package) {
+        return Card(
+          margin: EdgeInsets.symmetric(horizontal: 36, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/pill_icon.svg',
+                          height: 60,
+                          width: 60,
+                        ),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SvgPicture.asset(
+                          'assets/images/shield_safe_icon.svg',
+                          height: 18,
+                          width: 53.25,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 8),
+                    Text(
+                      package.packageName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      package.packageDescription,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () {
+                      },
+                      child: Text(
+                        'View more',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          decoration: TextDecoration.underline,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '₹ ${package.packagePrice.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Color(0xFF1BA9B5),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        cartController.addToCart(LabTestModel(
+                          testName: package.packageName,
+                          numberOfTests: 1,
+                          discountPrice: package.packagePrice,
+                          price: package.packagePrice,
+                          description: package.packageDescription,
+                          reportIn24Hours: true,
+                        ));
+                      },
+                      child: Text('Add to Cart'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

@@ -14,17 +14,16 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Health Checkup App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: '/',
       getPages: [
         GetPage(
           name: '/',
-          page: () => HomePage(), // Set initial route to HomePage
+          page: () => HomePage(),
         ),
-        // Add more routes if needed
       ],
+      debugShowCheckedModeBanner: false,
     );
   }
 }
