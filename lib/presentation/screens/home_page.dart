@@ -5,19 +5,6 @@ import '../../models/labtest_model.dart';
 import '../../models/package_model.dart';
 import 'cart_page.dart';
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'Health Checkup App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: HomePage(),
-    );
-  }
-}
-
 class CartController extends GetxController {
   RxList<LabTestModel> cartItems = <LabTestModel>[].obs;
 
