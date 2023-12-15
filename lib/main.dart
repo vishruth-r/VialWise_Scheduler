@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
           name: '/',
           page: () => HomePage(),
         ),
+
       ],
       debugShowCheckedModeBanner: false,
     );

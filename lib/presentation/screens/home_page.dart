@@ -22,15 +22,15 @@ class HomePage extends StatelessWidget {
 
   final List<PackageModel> package = [
     PackageModel(
-      packageName: 'Package 1',
-      packageDescription: 'Includes 92 tests\n-Blood Glucose Fasting\n-Liver Function Test',
-      packagePrice: 299.99,
+      packageName: 'Full Body Checkup',
+      packageDescription: 'Includes 92 tests\n• Blood Glucose Fasting\n• Liver Function Test',
+      packagePrice: 2000,
       packageImage: 'assets/images/package1.png',
     ),
     PackageModel(
-      packageName: 'Package 2',
-      packageDescription: 'Description for Package 2',
-      packagePrice: 199.99,
+      packageName: 'Full Bloodwork',
+      packageDescription: 'Includes 128 tests\n• Blood Glucose Fasting\n• Liver Function Test',
+      packagePrice: 3000,
       packageImage: 'assets/images/package2.png',
     ),
 
@@ -40,33 +40,33 @@ class HomePage extends StatelessWidget {
     LabTestModel(
       testName: 'Thyroid Profile',
       numberOfTests: 3,
-      discountPrice: 99.99,
-      price: 200,
+      discountPrice: 1000,
+      price: 1400,
       description: 'This test includes tests for thyroid function.',
       reportIn24Hours: true,
     ),
     LabTestModel(
       testName: 'Iron Study Test',
       numberOfTests: 4,
-      discountPrice: 99.99,
-      price: 129.99,
+      discountPrice: 600,
+      price: 1000,
       description: 'This test includes tests for iron levels.',
       reportIn24Hours: true,
     ),
     LabTestModel(
-      testName: 'Thyroid Profile',
+      testName: 'Liver Function Test',
       numberOfTests: 3,
-      discountPrice: 99.99,
-      price: 200,
-      description: 'This test includes tests for thyroid function.',
+      discountPrice: 800,
+      price: 1200,
+      description: 'This test includes tests for liver function.',
       reportIn24Hours: true,
     ),
     LabTestModel(
-      testName: 'Iron Study Test',
-      numberOfTests: 4,
-      discountPrice: 99.99,
-      price: 129.99,
-      description: 'This test includes tests for iron levels.',
+      testName: 'Blood Glucose Test',
+      numberOfTests: 5,
+      discountPrice: 1200,
+      price: 1600,
+      description: 'This test includes tests for blood glucose levels.',
       reportIn24Hours: true,
     ),
   ];
@@ -79,55 +79,91 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Health Checkup App',
+          'VialWise',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
+        centerTitle: true,
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () {
-                Get.to(CartPage());
-              },
-              child: SvgPicture.asset(
-                'assets/images/cart_icon.svg',
-                height: 24,
-                width: 24,
+          Stack(
+            children: [
+              Obx(() => Positioned(
+                left: 0,
+                right: 28,
+                top: 7,
+                child: Container(
+                  padding: EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: cartController.cartItems.length > 0
+                        ? Color(0xff16C2D5)
+                        : Colors.white,
+                  ),
+                  constraints: BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Text(
+                    '${cartController.cartItems.length}',
+                    style: TextStyle(
+                      color: cartController.cartItems.length > 0
+                          ? Color(0xff10217d)
+                          : Colors.white,
+                      fontSize: 11,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Get.to(CartPage());
+                  },
+                  child: Icon(
+                    Icons.shopping_cart,
+                    color: Color(0xff10217D),
+                    size: 24,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
       body: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 14),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Popular Lab tests',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xff10217D),
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-
-                  },
-                  child: Text(
-                    'View more',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                    ),
+                  onTap: () {},
+                  child: Row(
+                    children: [
+                      Text(
+                        'View more ',
+                        style: TextStyle(
+                          color: Color(0xff10217D),
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward, size: 15,),
+                    ],
                   ),
                 ),
               ],
@@ -163,9 +199,10 @@ class HomePage extends StatelessWidget {
 
   Widget _buildTestCard(LabTestModel test) {
     return Card(
-      margin: EdgeInsets.all(8),
+      margin: EdgeInsets.all(12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5.0),
+        side: BorderSide(color: Colors.grey,width: 0.4)
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +210,7 @@ class HomePage extends StatelessWidget {
           Container(
             height: 30,
             decoration: BoxDecoration(
-              color: Color.fromRGBO(16, 33, 128, 0.6),
+              color: Color.fromRGBO(16, 33, 128, 0.8),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(5.0),
                 topRight: Radius.circular(5.0),
@@ -196,10 +233,11 @@ class HomePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Includes ${test.numberOfTests} tests',
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                      style: TextStyle(fontSize: 11, color: Colors.blueGrey),
                     ),
                     SizedBox(width: 8),
                     SvgPicture.asset(
@@ -212,14 +250,14 @@ class HomePage extends StatelessWidget {
                 SizedBox(height: 4),
                 Text(
                   test.reportIn24Hours ? 'Get reports in 24 hours' : '',
-                  style: TextStyle(fontSize: 7, color: Colors.grey),
+                  style: TextStyle(fontSize: 7, color: Colors.blueGrey),
                 ),
                 SizedBox(height: 8),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '₹ ${test.discountPrice.toStringAsFixed(2)}',
+                      '₹ ${test.discountPrice.toStringAsFixed(0)}',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -228,7 +266,7 @@ class HomePage extends StatelessWidget {
                     ),
                     SizedBox(width: 4),
                     Text(
-                      '${test.price.toStringAsFixed(2)}',
+                      '${test.price.toStringAsFixed(0)}',
                       style: TextStyle(
                         fontSize: 6.5,
                         decoration: TextDecoration.lineThrough,
@@ -237,17 +275,20 @@ class HomePage extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     cartController.addToCart(test);
                   },
                   style: ElevatedButton.styleFrom(
+                    primary: Color(0xff10217D),
+                    onPrimary: Colors.white,
                     minimumSize: Size(double.infinity, 30),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
+                    elevation: 0,
                   ),
                   child: Text(
                     'Add to Cart',
@@ -260,11 +301,15 @@ class HomePage extends StatelessWidget {
 
                   },
                   style: ElevatedButton.styleFrom(
+                    primary: Colors.white,
+                    onPrimary: Color(0xff10217D),
+                    side: BorderSide(width: 1, color: Color(0xff10217D)),
                     minimumSize: Size(double.infinity, 30),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
+                    elevation: 0,
                   ),
                   child: Text(
                     'View Details',
@@ -283,15 +328,17 @@ class HomePage extends StatelessWidget {
     return Column(
       children: packages.map((package) {
         return Card(
+          elevation: 0,
           margin: EdgeInsets.symmetric(horizontal: 36, vertical: 8),
           shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.grey, width: 0.4),
             borderRadius: BorderRadius.circular(5.0),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(top: 16, bottom: 8,right: 8,left: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,7 +411,7 @@ class HomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '₹ ${package.packagePrice.toStringAsFixed(2)}',
+                      '₹ ${package.packagePrice.toStringAsFixed(0)}/-',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -382,6 +429,15 @@ class HomePage extends StatelessWidget {
                           reportIn24Hours: true,
                         ));
                       },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        primary: Colors.white,
+                        onPrimary: Color(0xff10217d),
+                        side: BorderSide(color: Color(0xff10217d)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
                       child: Text('Add to Cart'),
                     ),
                   ],

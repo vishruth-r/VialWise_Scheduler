@@ -1,24 +1,112 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:wellness_cart/models/labtest_model.dart';
 import 'package:wellness_cart/presentation/screens/schedule_page.dart';
+import 'package:wellness_cart/presentation/screens/success_page.dart';
 import 'home_page.dart';
 
+class ScheduleController extends GetxController {
+  Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
+  Rx<String?> selectedTime = Rx<String?>(null);
+
+  void updateSelectedDateTime(DateTime? date, String? time) {
+    selectedDate.value = date;
+    selectedTime.value = time;
+    update();
+  }
+}
+
 class CartPage extends StatelessWidget {
+  final ScheduleController scheduleController = Get.put(ScheduleController());
+  @override
   final CartController cartController = Get.find<CartController>();
+  bool isDateSelected = true;
+
+  double calculateTotalMRP(List<LabTestModel> items) {
+    double total = 0.0;
+    for (var item in items) {
+      total += item.price;
+    }
+    return total;
+  }
+  double calculateTotalDiscount(List<LabTestModel> items) {
+    double totalDiscount = 0.0;
+    for (var item in items) {
+      totalDiscount += (item.price - item.discountPrice);
+    }
+    return totalDiscount;
+  }
+  double calculateAmountToBePaid(List<LabTestModel> items) {
+    double totalMRP = calculateTotalMRP(items);
+    double totalDiscount = calculateTotalDiscount(items);
+    return totalMRP - totalDiscount;
+  }
+  double calculateTotalSavings(List<LabTestModel> items) {
+    double totalMRP = calculateTotalMRP(items);
+    double amountToBePaid = calculateAmountToBePaid(items);
+    return totalMRP - amountToBePaid;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cart'),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          'My Cart',
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.more_vert, color: Color(0xff0D99FF)),
+            onPressed: () {
+
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
+    body: GetBuilder<CartController>(
+    init: cartController,
+    builder: (_) =>
+    cartController.cartItems.isEmpty
+        ? Center(
+      child: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Your cart is empty.',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    )
+        : SingleChildScrollView(
+    child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Text(
+                'Order Review',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
@@ -26,26 +114,33 @@ class CartPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = cartController.cartItems[index];
                 return Card(
-                  margin: EdgeInsets.all(8),
+                  margin: EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Container(
-                        height: 30,
-                        color: Colors.blue,
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Pathology Tests',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                      if (index == 0)
+                        Container(
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(16, 33, 125, 0.8),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(8.0),
+                              topRight: Radius.circular(8.0),
+                            ),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Pathology Tests',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.symmetric(vertical: 8.0,horizontal: 24),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -53,7 +148,7 @@ class CartPage extends StatelessWidget {
                               item.testName,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 15,
                               ),
                             ),
                             Column(
@@ -62,17 +157,17 @@ class CartPage extends StatelessWidget {
                                 Text(
                                   '₹ ${item.discountPrice.toStringAsFixed(2)}',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.green,
+                                    color: Color(0xff1BA9B5),
                                   ),
                                 ),
                                 Text(
                                   '₹ ${item.price.toStringAsFixed(2)}',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     decoration: TextDecoration.lineThrough,
-                                    color: Colors.red,
+                                    color: Colors.grey,
                                   ),
                                 ),
                               ],
@@ -84,27 +179,47 @@ class CartPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: TextButton(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: OutlinedButton.icon(
                               onPressed: () {
                                 cartController.removeFromCart(item);
+                                Get.find<CartController>().update();
                               },
-                              child: Text(
+                              icon: Icon(Icons.delete_outline, color: Color.fromRGBO(16, 33, 125, 0.8)),
+                              label: Text(
                                 'Remove',
-                                style: TextStyle(color: Colors.red),
+                                style: TextStyle(color: Color.fromRGBO(16, 33, 125, 0.8)),
+                              ),
+                              style: ButtonStyle(
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    side: BorderSide(
+                                        color: Color.fromRGBO(16, 33, 125, 0.8)
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: TextButton(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: OutlinedButton.icon(
                               onPressed: () {
                               },
-                              child: Text(
-                                'Upload Prescription',
+                              icon: Icon(Icons.file_upload_outlined, color: Color.fromRGBO(16, 33, 125, 0.8)),
+                              label: Text(
+                                'Upload Prescription (optional)',
                                 style: TextStyle(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
+                                  color: Color.fromRGBO(16, 33, 125, 0.8),
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    side: BorderSide(color: Color.fromRGBO(16, 33, 125, 0.8)),
+                                  ),
                                 ),
                               ),
                             ),
@@ -116,8 +231,8 @@ class CartPage extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: 20),
             Container(
+              margin: EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.grey,
@@ -128,42 +243,65 @@ class CartPage extends StatelessWidget {
               child: GestureDetector(
                 onTap: () {
                   Get.to(SchedulePage());
-
                 },
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.calendar_today,
-                        color: Colors.blue,
+                child: Container(
+                  padding: EdgeInsets.only(left: 12,right: 20,top: 20,bottom: 20),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.calendar_today,
+                          color: Color.fromRGBO(16, 33, 125, 0.8),
+                        ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          left: BorderSide(
-                            color: Colors.grey,
-                            width: 1.0,
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(SchedulePage())?.then((value) {
+                              if (value != null && value is Map<String, dynamic>) {
+                                DateTime? selectedDate = value['selectedDate'];
+                                String? selectedTime = value['selectedTime'];
+                                if (selectedDate != null && selectedTime != null) {
+                                  scheduleController.updateSelectedDateTime(selectedDate, selectedTime);
+                                }
+                              }
+                            });
+                          },
+                          child: Container(
+                            child: GetBuilder<ScheduleController>(
+                              builder: (ScheduleController) {
+                                if (ScheduleController.selectedDate == null || ScheduleController.selectedTime == null) {
+                                  return Text(
+                                    'Select Date',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                  );
+                                } else {
+                                  return Text(
+                                    'Date: ${ScheduleController.selectedDate.toString()} \nTime: ${ScheduleController.selectedTime}',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                           ),
                         ),
                       ),
-                      child: Text(
-                        'Select Date',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                )
               ),
             ),
             SizedBox(height: 20),
             Container(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(24),
+              margin: EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.grey,
@@ -174,16 +312,37 @@ class CartPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('M.R.P. Total: ₹ xxx'),
-                  Text('Discount: ₹ xxx'),
-                  Text('Amount to be Paid: ₹ xxx'),
-                  Text('Total Savings: ₹ xxx'),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('M.R.P. Total:', style: TextStyle(fontSize: 16)),
+                      Text('₹ ${calculateTotalMRP(cartController.cartItems)}', style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Discount:', style: TextStyle(fontSize: 16)),
+                      Text('₹ ${calculateTotalDiscount(cartController.cartItems)}', style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Amount to be Paid:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700,color: Color(0xff10217D))),
+                      Text('₹ ${calculateAmountToBePaid(cartController.cartItems)}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700,color: Color(0xff10217D))),
+                    ],
+                  ),
+                  SizedBox(height: 30),
+                  Text('Total Savings: ₹ ${calculateTotalSavings(cartController.cartItems)}', style: TextStyle(fontSize: 16)),
                 ],
               ),
             ),
             SizedBox(height:20),
             Container(
-
               padding: EdgeInsets.all(16),
               margin: EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
@@ -217,12 +376,37 @@ class CartPage extends StatelessWidget {
                 ],
               ),
             ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: ElevatedButton(
+                onPressed: isDateSelected
+                    ? () {
+                  Get.to(SuccessPage(
+                    scheduledDate: '2023-12-25',
+                    scheduledTime: '10:00',
+                  ));
+                }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  primary: isDateSelected ? Color(0xff10217D) : Colors.grey,
+                ),
+                child: Text(
+                  'Schedule',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
           ],
         ),
+
       ),
+    ),
     );
   }
 }
+
 class CustomCheckbox extends StatefulWidget {
   @override
   _CustomCheckboxState createState() => _CustomCheckboxState();

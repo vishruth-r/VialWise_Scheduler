@@ -66,6 +66,7 @@ flutter:
     - assets/images/cart_icon.svg
     - assets/images/pill_icon.svg
     - assets/images/shield_safe_icon.svg
+    - assets/images/success_icon.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
