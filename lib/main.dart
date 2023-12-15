@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Health Checkup App',
+      title: 'VialWise',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),

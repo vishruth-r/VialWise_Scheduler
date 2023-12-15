@@ -424,7 +424,7 @@ class HomePage extends StatelessWidget {
                           testName: package.packageName,
                           numberOfTests: 1,
                           discountPrice: package.packagePrice,
-                          price: package.packagePrice,
+                          price: package.packagePrice + 400,  
                           description: package.packageDescription,
                           reportIn24Hours: true,
                         ));

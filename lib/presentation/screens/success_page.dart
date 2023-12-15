@@ -24,7 +24,7 @@ class SuccessPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.more_vert, color: Color(0xff0D99FF)),
             onPressed: () {
-              // Add any actions here if needed
+
             },
           ),
         ],
@@ -86,18 +86,12 @@ class SuccessPage extends StatelessWidget {
   }
   String _formattedDate(String date) {
     DateTime dateTime = DateTime.parse(date);
-    return DateFormat('dd MMM y').format(dateTime); // Format date as "xx Dec 2023"
+    return DateFormat('dd MMM y').format(dateTime);
   }
   String _formattedTime(String time) {
     List<String> timeParts = time.split(':');
     int hour = int.parse(timeParts[0]);
-    return '${_formatHour(hour)} ${_getTimePeriod(hour)}'; // Format time as "9 AM"
-  }
-
-  String _getMonth(int month) {
-    return [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ][month - 1];
+    return '${_formatHour(hour)} ${_getTimePeriod(hour)}';
   }
 
   String _formatHour(int hour) {

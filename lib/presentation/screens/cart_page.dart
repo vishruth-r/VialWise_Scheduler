@@ -24,7 +24,7 @@ class CartPage extends StatelessWidget {
   bool isChecked = true;
 
   void clearCart() {
-    cartController.cartItems.clear(); // Assuming cartItems is a List<LabTestModel>
+    cartController.cartItems.clear();
   }
 
   double calculateTotalDiscount(List<LabTestModel> items) {
@@ -377,10 +377,9 @@ class CartPage extends StatelessWidget {
                     children: [
                       CustomCheckbox(
               isChecked: isChecked,
-                onChanged: (value) {
-                  // Update isChecked when checkbox state changes
+                onChanged: (value){
                   isChecked = value;
-                  // Call update to rebuild UI
+
                   Get.find<CartController>().update();
                 },
               ),
@@ -412,7 +411,7 @@ class CartPage extends StatelessWidget {
                     onPressed: selectedDate != null
                         ? () {
                       Get.to(SuccessPage(
-                        scheduledDate: DateFormat('yyyy-MM-dd').format(selectedDate!),
+                        scheduledDate: DateFormat('yyyy-MM-dd').format(selectedDate),
                         scheduledTime: scheduleController.selectedTime.value!,
                       ));
                       cartController.cartItems.clear();
@@ -421,10 +420,10 @@ class CartPage extends StatelessWidget {
                       scheduleController.selectedTime.value = null;
                       scheduleController.update();
                     }
-                    : null, // Disable the button if no date is selected
+                    : null,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 15),
-                    primary: selectedDate != null // Use selectedDate to enable or disable the button
+                    primary: selectedDate != null
                         ? Color(0xff10217D)
                         : Colors.grey,
                   ),
