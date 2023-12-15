@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:wellness_cart/models/labtest_model.dart';
 import 'package:wellness_cart/presentation/screens/schedule_page.dart';
 import 'package:wellness_cart/presentation/screens/success_page.dart';
@@ -20,15 +21,12 @@ class CartPage extends StatelessWidget {
   final ScheduleController scheduleController = Get.put(ScheduleController());
   @override
   final CartController cartController = Get.find<CartController>();
-  bool isDateSelected = true;
+  bool isChecked = true;
 
-  double calculateTotalMRP(List<LabTestModel> items) {
-    double total = 0.0;
-    for (var item in items) {
-      total += item.price;
-    }
-    return total;
+  void clearCart() {
+    cartController.cartItems.clear(); // Assuming cartItems is a List<LabTestModel>
   }
+
   double calculateTotalDiscount(List<LabTestModel> items) {
     double totalDiscount = 0.0;
     for (var item in items) {
@@ -38,13 +36,20 @@ class CartPage extends StatelessWidget {
   }
   double calculateAmountToBePaid(List<LabTestModel> items) {
     double totalMRP = calculateTotalMRP(items);
-    double totalDiscount = calculateTotalDiscount(items);
-    return totalMRP - totalDiscount;
+    return totalMRP - calculateTotalDiscount(items);
   }
-  double calculateTotalSavings(List<LabTestModel> items) {
-    double totalMRP = calculateTotalMRP(items);
-    double amountToBePaid = calculateAmountToBePaid(items);
-    return totalMRP - amountToBePaid;
+
+  double calculateTotalMRP(List<LabTestModel> items) {
+    double total = 0.0;
+    for (var item in items) {
+      total += item.discountPrice;
+    }
+
+    if (isChecked) {
+      total += 150.0 * items.length;
+    }
+
+    return total;
   }
 
   @override
@@ -245,7 +250,7 @@ class CartPage extends StatelessWidget {
                   Get.to(SchedulePage());
                 },
                 child: Container(
-                  padding: EdgeInsets.only(left: 12,right: 20,top: 20,bottom: 20),
+                  padding: EdgeInsets.only(left: 12, right: 20, top: 20, bottom: 20),
                   child: Row(
                     children: [
                       Padding(
@@ -269,9 +274,20 @@ class CartPage extends StatelessWidget {
                             });
                           },
                           child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
                             child: GetBuilder<ScheduleController>(
-                              builder: (ScheduleController) {
-                                if (ScheduleController.selectedDate == null || ScheduleController.selectedTime == null) {
+                              builder: (scheduleController) {
+                                DateTime? selectedDate = scheduleController.selectedDate.value;
+                                String? selectedTime = scheduleController.selectedTime.value;
+
+                                if (selectedDate == null || selectedTime == null) {
                                   return Text(
                                     'Select Date',
                                     style: TextStyle(
@@ -280,8 +296,10 @@ class CartPage extends StatelessWidget {
                                     ),
                                   );
                                 } else {
+                                  final formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+                                  final formattedTime = DateFormat('h a').format(DateFormat('HH:mm').parse(selectedTime));
                                   return Text(
-                                    'Date: ${ScheduleController.selectedDate.toString()} \nTime: ${ScheduleController.selectedTime}',
+                                    '$formattedDate ($formattedTime)',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.black,
@@ -295,7 +313,7 @@ class CartPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                )
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -337,7 +355,7 @@ class CartPage extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 30),
-                  Text('Total Savings: ₹ ${calculateTotalSavings(cartController.cartItems)}', style: TextStyle(fontSize: 16)),
+                  Text('Total Savings: ₹ ${calculateTotalDiscount(cartController.cartItems)}', style: TextStyle(fontSize: 16)),
                 ],
               ),
             ),
@@ -357,7 +375,15 @@ class CartPage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      CustomCheckbox(),
+                      CustomCheckbox(
+              isChecked: isChecked,
+                onChanged: (value) {
+                  // Update isChecked when checkbox state changes
+                  isChecked = value;
+                  // Call update to rebuild UI
+                  Get.find<CartController>().update();
+                },
+              ),
                       SizedBox(width: 8),
                       Text(
                         'Hard Copy of Reports',
@@ -370,7 +396,7 @@ class CartPage extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Reports will be delivered within 3-4 working days. Hard copy charges are non-refundable once the reports have been dispatched.\n\n₹150 per person',
+                    'Reports will be delivered within 3-4 working days. Hard copy charges are non-refundable once the reports have been dispatched.\n\n₹150 per report',
                     style: TextStyle(fontSize: 14),
                   ),
                 ],
@@ -379,25 +405,37 @@ class CartPage extends StatelessWidget {
             Container(
               width: double.infinity,
               margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: ElevatedButton(
-                onPressed: isDateSelected
-                    ? () {
-                  Get.to(SuccessPage(
-                    scheduledDate: '2023-12-25',
-                    scheduledTime: '10:00',
-                  ));
-                }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  primary: isDateSelected ? Color(0xff10217D) : Colors.grey,
-                ),
-                child: Text(
-                  'Schedule',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
+              child: Obx(() {
+                final selectedDate = scheduleController.selectedDate.value;
+
+                return ElevatedButton(
+                    onPressed: selectedDate != null
+                        ? () {
+                      Get.to(SuccessPage(
+                        scheduledDate: DateFormat('yyyy-MM-dd').format(selectedDate!),
+                        scheduledTime: scheduleController.selectedTime.value!,
+                      ));
+                      cartController.cartItems.clear();
+                      cartController.update();
+                      scheduleController.selectedDate.value = null;
+                      scheduleController.selectedTime.value = null;
+                      scheduleController.update();
+                    }
+                    : null, // Disable the button if no date is selected
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    primary: selectedDate != null // Use selectedDate to enable or disable the button
+                        ? Color(0xff10217D)
+                        : Colors.grey,
+                  ),
+                  child: Text(
+                    'Schedule',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                );
+              }),
             ),
+
           ],
         ),
 
@@ -407,20 +445,22 @@ class CartPage extends StatelessWidget {
   }
 }
 
-class CustomCheckbox extends StatefulWidget {
-  @override
-  _CustomCheckboxState createState() => _CustomCheckboxState();
-}
-class _CustomCheckboxState extends State<CustomCheckbox> {
-  bool isChecked = false;
+class CustomCheckbox extends StatelessWidget {
+  final bool isChecked;
+  final ValueChanged<bool>? onChanged;
+
+  const CustomCheckbox({
+    required this.isChecked,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          isChecked = !isChecked;
-        });
+        if (onChanged != null) {
+          onChanged!(!isChecked);
+        }
       },
       child: Container(
         width: 24,
@@ -428,10 +468,10 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: isChecked ? Colors.blue : Colors.grey,
+            color: isChecked ? Color(0xff10217D) : Colors.grey,
             width: 1.0,
           ),
-          color: isChecked ? Colors.blue : Colors.transparent,
+          color: isChecked ? Color(0xff10217D) : Colors.transparent,
         ),
         child: isChecked
             ? Icon(

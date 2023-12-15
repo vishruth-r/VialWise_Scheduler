@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:intl/intl.dart';
 import 'package:wellness_cart/presentation/screens/home_page.dart';
-import 'package:wellness_cart/presentation/screens/schedule_page.dart';
 
 class SuccessPage extends StatelessWidget {
   final String scheduledDate;
@@ -17,11 +16,15 @@ class SuccessPage extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        title: Text('Success',style: TextStyle(color: Colors.black),),
+        title: Text(
+          'Success',
+          style: TextStyle(color: Colors.black),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.more_vert, color: Color(0xff0D99FF)),
             onPressed: () {
+              // Add any actions here if needed
             },
           ),
         ],
@@ -30,7 +33,7 @@ class SuccessPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            margin: EdgeInsets.symmetric(vertical: 80,horizontal: 40),
+            margin: EdgeInsets.symmetric(vertical: 80, horizontal: 40),
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey),
@@ -39,19 +42,17 @@ class SuccessPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SvgPicture.asset('assets/images/success_icon.svg',height: 165, width: 180),
-
+                SvgPicture.asset('assets/images/success_icon.svg', height: 165, width: 180),
                 SizedBox(height: 20),
-
                 Text(
-                  'Lab tests have been scheduled successfully, you will receive a mail of the same.',
+                  'Lab tests have been scheduled successfully. You will receive an email of the same.',
                   style: TextStyle(fontSize: 18, color: Colors.black),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 20),
                 Text(
                   '${_formattedDate(scheduledDate)} | ${_formattedTime(scheduledTime)}',
-                  style: TextStyle(fontSize: 16,color: Colors.grey),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -65,11 +66,11 @@ class SuccessPage extends StatelessWidget {
                 margin: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
                 child: ElevatedButton(
                   onPressed: () {
-
                     Get.to(HomePage());
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 15), backgroundColor: Color(0xff10217D),
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    backgroundColor: Color(0xff10217D),
                   ),
                   child: Text(
                     'Back to Home',
@@ -83,17 +84,14 @@ class SuccessPage extends StatelessWidget {
       ),
     );
   }
-
   String _formattedDate(String date) {
     DateTime dateTime = DateTime.parse(date);
-    return '${dateTime.day} ${_getMonth(dateTime.month)} ${dateTime.year}';
+    return DateFormat('dd MMM y').format(dateTime); // Format date as "xx Dec 2023"
   }
-
   String _formattedTime(String time) {
     List<String> timeParts = time.split(':');
     int hour = int.parse(timeParts[0]);
-    String minute = timeParts[1];
-    return '${_formatHour(hour)}:${minute.padLeft(2, '0')} ${_getTimePeriod(hour)}';
+    return '${_formatHour(hour)} ${_getTimePeriod(hour)}'; // Format time as "9 AM"
   }
 
   String _getMonth(int month) {

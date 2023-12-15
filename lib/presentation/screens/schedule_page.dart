@@ -190,10 +190,6 @@ class _SchedulePageState extends State<SchedulePage> {
               child: ElevatedButton(
                 onPressed: canConfirm
                     ? () {
-                  print("Works");
-                  //print(_selectedTime);
-                  //print(_selectedDay);
-
                   Get.back(result: {
                     'selectedDate': _selectedDay,
                     'selectedTime': _selectedTime
